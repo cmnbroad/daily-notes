@@ -4,8 +4,6 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLIST_DIR="$HOME/Library/LaunchAgents"
-PLIST_LABEL="com.cmn.dailynotes"
-PLIST_PATH="$PLIST_DIR/$PLIST_LABEL.plist"
 PYTHON="$(command -v python3 || echo '/usr/bin/python3')"
 
 # ---- config.json ----
@@ -22,10 +20,17 @@ if [ ! -f "$SCRIPT_DIR/config.json" ]; then
   echo ""
   read -rp "Enter your Gmail address: " GMAIL_ADDR
   read -rp "Enter the App Password (spaces OK): " APP_PASS
+  read -rp "Send the daily email to [$GMAIL_ADDR]: " RECIPIENT
+  RECIPIENT="${RECIPIENT:-$GMAIL_ADDR}"
+  DEFAULT_LABEL="com.$USER.dailynotes"
+  read -rp "LaunchAgent label [$DEFAULT_LABEL]: " LABEL
+  LABEL="${LABEL:-$DEFAULT_LABEL}"
   cat > "$SCRIPT_DIR/config.json" <<JSON
 {
   "sender_email": "$GMAIL_ADDR",
-  "app_password": "$APP_PASS"
+  "app_password": "$APP_PASS",
+  "recipient_email": "$RECIPIENT",
+  "launchd_label": "$LABEL"
 }
 JSON
   echo "config.json created."
@@ -34,6 +39,8 @@ else
 fi
 
 # ---- LaunchAgent plist ----
+PLIST_LABEL="$("$PYTHON" -c 'import json, sys; print(json.load(open(sys.argv[1]))["launchd_label"])' "$SCRIPT_DIR/config.json")"
+PLIST_PATH="$PLIST_DIR/$PLIST_LABEL.plist"
 mkdir -p "$PLIST_DIR"
 cat > "$PLIST_PATH" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>

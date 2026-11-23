@@ -1,4 +1,6 @@
 {
   "sender_email": "your_gmail_address@gmail.com",
-  "app_password": "xxxx xxxx xxxx xxxx"
+  "app_password": "xxxx xxxx xxxx xxxx",
+  "recipient_email": "where_to_send@example.com",
+  "launchd_label": "com.yourname.dailynotes"
 }

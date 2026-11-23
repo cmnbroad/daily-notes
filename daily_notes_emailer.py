@@ -19,7 +19,6 @@ from email.mime.text import MIMEText
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_PATH = os.path.join(SCRIPT_DIR, 'config.json')
 LOG_PATH = os.path.join(SCRIPT_DIR, 'emailer.log')
-RECIPIENT = "cmn397@gmail.com"
 MAX_PLAIN_CHARS = 3000
 
 logging.basicConfig(
@@ -261,7 +260,7 @@ def send_email(subject, html_body, cfg):
     msg = MIMEMultipart('alternative')
     msg['Subject'] = subject
     msg['From'] = cfg['sender_email']
-    msg['To'] = RECIPIENT
+    msg['To'] = cfg['recipient_email']
     msg.attach(MIMEText(html_body, 'html'))
     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as srv:
         srv.login(cfg['sender_email'], cfg['app_password'])

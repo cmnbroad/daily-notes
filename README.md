@@ -28,8 +28,8 @@ A small macOS script that picks a random dated entry from your Apple Notes **Dai
 
 The installer:
 
-1. If `config.json` doesn't exist, asks for your Gmail address and App Password and writes them to it.
-2. Writes a LaunchAgent to `~/Library/LaunchAgents/com.cmn.dailynotes.plist` that runs the script every day at **8:00 AM**.
+1. If `config.json` doesn't exist, asks for your Gmail address, App Password, recipient address (defaults to your Gmail address), and LaunchAgent label (defaults to `com.<your username>.dailynotes`), and writes them to it.
+2. Writes a LaunchAgent to `~/Library/LaunchAgents/<launchd_label>.plist` that runs the script every day at **8:00 AM**.
 3. Loads the agent with `launchctl` (if an older version was loaded, it is unloaded first).
 
 The first time it runs, macOS will ask for permission to let Python/Terminal control Notes. Allow it, or the script won't be able to read your notes.
@@ -41,15 +41,25 @@ The first time it runs, macOS will ask for permission to let Python/Terminal con
 ```json
 {
   "sender_email": "your_gmail_address@gmail.com",
-  "app_password": "xxxx xxxx xxxx xxxx"
+  "app_password": "xxxx xxxx xxxx xxxx",
+  "recipient_email": "where_to_send@example.com",
+  "launchd_label": "com.yourname.dailynotes"
 }
 ```
 
-Settings that are constants in `daily_notes_emailer.py`:
+| Key               | Purpose                                                  |
+|-------------------|----------------------------------------------------------|
+| `sender_email`    | Gmail address used to log in and send                    |
+| `app_password`    | Gmail App Password for `sender_email`                    |
+| `recipient_email` | Address the email is sent to                             |
+| `launchd_label`   | LaunchAgent label; also the plist filename `install.sh` writes |
+
+If you change `launchd_label`, unload the old agent (see Uninstall) before running `install.sh` again.
+
+Setting that is a constant in `daily_notes_emailer.py`:
 
 | Constant          | Purpose                                       |
 |-------------------|-----------------------------------------------|
-| `RECIPIENT`       | Address the email is sent to                  |
 | `MAX_PLAIN_CHARS` | Rough character limit for each section (3000) |
 
 To change the run time, edit `Hour` and `Minute` in `install.sh` and run it again.
@@ -78,7 +88,9 @@ python3 daily_notes_emailer.py
 
 ## Uninstall
 
+Replace `<launchd_label>` with the value from `config.json`:
+
 ```bash
-launchctl unload ~/Library/LaunchAgents/com.cmn.dailynotes.plist
-rm ~/Library/LaunchAgents/com.cmn.dailynotes.plist
+launchctl unload ~/Library/LaunchAgents/<launchd_label>.plist
+rm ~/Library/LaunchAgents/<launchd_label>.plist
 ```
